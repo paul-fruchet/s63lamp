@@ -52,9 +52,9 @@
             }
 
             let rgb = new Uint8Array([color.rgb.r, color.rgb.g, color.rgb.b]);
-            alert(`Sending RGB: ${color.rgb.r}, ${color.rgb.g}, ${color.rgb.b}`);
+            console.log(`Sending RGB: ${color.rgb.r}, ${color.rgb.g}, ${color.rgb.b}`);
             bleCharacteristic.writeValue(rgb)
-                .then(() => alert("Data Sent!"))
+                .then(() => console.log("Data Sent!"))
                 .catch(error => alert("Write Error:", error));
         });
     </script>
