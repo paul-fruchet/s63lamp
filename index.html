@@ -55,7 +55,7 @@
             console.log(`Sending RGB: ${color.rgb.r}, ${color.rgb.g}, ${color.rgb.b}`);
             bleCharacteristic.writeValue(rgb)
                 .then(() => console.log("Data Sent!"))
-                .catch(error => alert("Write Error:", error));
+                .catch(error => console.log("Write Error:", error));
         });
     </script>
 </body>
