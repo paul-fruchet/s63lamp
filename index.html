@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ESP32 BLE Color Picker</title>
+    <script src="https://cdn.jsdelivr.net/npm/@jaames/iro@5.5.3/dist/iro.min.js"></script>
+    <style>
+        body { text-align: center; font-family: Arial, sans-serif; }
+        button { padding: 10px; font-size: 18px; margin: 10px; }
+    </style>
+</head>
+<body>
+    <h1>ESP32 BLE Color Picker</h1>
+    <button onclick="connectBLE()">Connect to ESP32</button>
+    <div id="colorWheel"></div>
+
+    <script>
+        let colorPicker = new iro.ColorPicker("#colorWheel", {
+            width: 300,
+            layoutDirection: 'horizontal',
+            borderWidth: 2,
+            borderColor: "#fff"
+        });
+
+        let bleDevice, bleServer, bleService, bleCharacteristic;
+        const SERVICE_UUID = "12345678-1234-5678-1234-56789abcdef0";
+        const CHARACTERISTIC_UUID = "abcdef01-1234-5678-1234-56789abcdef0";
+
+        async function connectBLE() {
+            try {
+                bleDevice = await navigator.bluetooth.requestDevice({
+                    acceptAllDevices: true,
+                    optionalServices: [SERVICE_UUID]
+                });
+
+                bleServer = await bleDevice.gatt.connect();
+                bleService = await bleServer.getPrimaryService(SERVICE_UUID);
+                bleCharacteristic = await bleService.getCharacteristic(CHARACTERISTIC_UUID);
+                
+                alert("Connected to ESP32!");
+            } catch (error) {
+                console.error("Bluetooth Error:", error);
+                alert("Failed to connect.");
+            }
+        }
+
+        colorPicker.on('color:change', function(color) {
+            if (!bleCharacteristic) return;
+
+            let rgb = new Uint8Array([color.rgb.r, color.rgb.g, color.rgb.b]);
+            bleCharacteristic.writeValue(rgb);
+        });
+    </script>
+</body>
+</html>
