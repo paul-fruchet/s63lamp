@@ -47,15 +47,15 @@
 
         colorPicker.on('color:change', function(color) {
             if (!bleCharacteristic) {
-                console.log("BLE Characteristic not found!");
+                alert("BLE Characteristic not found!");
                 return;
             }
 
             let rgb = new Uint8Array([color.rgb.r, color.rgb.g, color.rgb.b]);
-            console.log(`Sending RGB: ${color.rgb.r}, ${color.rgb.g}, ${color.rgb.b}`);
+            alert(`Sending RGB: ${color.rgb.r}, ${color.rgb.g}, ${color.rgb.b}`);
             bleCharacteristic.writeValue(rgb)
-                .then(() => console.log("Data Sent!"))
-                .catch(error => console.log("Write Error:", error));
+                .then(() => alert("Data Sent!"))
+                .catch(error => alert("Write Error:", error));
         });
     </script>
 </body>
