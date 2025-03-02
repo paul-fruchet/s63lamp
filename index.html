@@ -26,7 +26,7 @@
 </head>
 <body>
   <h1>ESP32 BLE Color Picker</h1>
-  <p>Device Name Filter: <strong>ESP32-BLE-NeoPixel</strong></p>
+  <p>Using Device Name: <strong>ESP32-BLE-NeoPixel</strong></p>
   
   <button onclick="connectBLE()">Connect to ESP32</button>
 
@@ -45,45 +45,43 @@
     const SERVICE_UUID = "12345678-1234-5678-1234-56789abcdef0";
     const CHARACTERISTIC_UUID = "abcdef01-1234-5678-1234-56789abcdef0";
 
-    // Two color pickers with only a color wheel (no brightness slider):
+    // Create two Iro.js color pickers, each showing only a color wheel
     let colorPickerTop = new iro.ColorPicker("#colorWheelTop", {
       width: 200,
       layout: [
-        { 
-          component: iro.ui.Wheel, 
-          options: {}
-        }
+        { component: iro.ui.Wheel }
       ]
     });
 
     let colorPickerBottom = new iro.ColorPicker("#colorWheelBottom", {
       width: 200,
       layout: [
-        {
-          component: iro.ui.Wheel,
-          options: {}
-        }
+        { component: iro.ui.Wheel }
       ]
     });
 
-    // Helper to send [ringIndex, R, G, B]
+    // Helper: send [ringIndex, R, G, B] to the BLE characteristic
     function sendColor(ringIndex, r, g, b) {
       if (!bleCharacteristic) {
-        console.log("BLE Characteristic not found or not connected!");
+        console.log("BLE not connected or characteristic not found!");
         return;
       }
       let data = new Uint8Array([ringIndex, r, g, b]);
-      console.log(`Sending => ring ${ringIndex}, RGB=(${r},${g},${b})`);
+      console.log(`Sending => ringIndex=${ringIndex}, RGB=(${r},${g},${b})`);
       bleCharacteristic.writeValue(data)
         .then(() => console.log("Data Sent!"))
         .catch(error => console.error("Write Error:", error));
     }
 
-    // Connect to the BLE device by filtering on name
+    // Connect to the BLE device by filtering on its advertised name
     async function connectBLE() {
       try {
         bleDevice = await navigator.bluetooth.requestDevice({
-          filters: [{ name: 'ESP32-BLE-NeoPixel' }],
+          filters: [{ name: 'ESP32-BLE-NeoPixel' }],  
+          // If the name filter doesn't work for you, you can try:
+          // acceptAllDevices: true,
+          // optionalServices: [SERVICE_UUID]
+          // But that will prompt the user to choose from *any* device
           optionalServices: [SERVICE_UUID]
         });
 
@@ -98,15 +96,17 @@
       }
     }
 
-    // Listen for color changes
+    // TOP color picker -> ringIndex = 0
     colorPickerTop.on('color:change', (color) => {
-      // ringIndex = 0 => top ring
-      sendColor(0, color.rgb.r, color.rgb.g, color.rgb.b);
+      // R, G, B from iro.js
+      let { r, g, b } = color.rgb;
+      sendColor(0, r, g, b);
     });
 
+    // BOTTOM color picker -> ringIndex = 1
     colorPickerBottom.on('color:change', (color) => {
-      // ringIndex = 1 => bottom ring
-      sendColor(1, color.rgb.r, color.rgb.g, color.rgb.b);
+      let { r, g, b } = color.rgb;
+      sendColor(1, r, g, b);
     });
   </script>
 </body>
