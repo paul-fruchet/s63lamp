@@ -100,13 +100,13 @@
     colorPickerTop.on('color:change', (color) => {
       // R, G, B from iro.js
       let { r, g, b } = color.rgb;
-      sendColor(0, r, g, b);
+      sendColor(1, r, g, b);
     });
 
     // BOTTOM color picker -> ringIndex = 1
     colorPickerBottom.on('color:change', (color) => {
       let { r, g, b } = color.rgb;
-      sendColor(1, r, g, b);
+      sendColor(2, r, g, b);
     });
   </script>
 </body>
