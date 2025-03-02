@@ -1,62 +1,113 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ESP32 BLE Color Picker</title>
-    <script src="https://cdn.jsdelivr.net/npm/@jaames/iro@5"></script>
-    <style>
-        body { text-align: center; font-family: Arial, sans-serif; }
-        button { padding: 10px; font-size: 18px; margin: 10px; }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ESP32 BLE Color Picker</title>
+  <!-- Iro.js from CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/@jaames/iro@5"></script>
+  <style>
+    body {
+      text-align: center;
+      font-family: Arial, sans-serif;
+      margin: 20px auto;
+      max-width: 500px;
+    }
+    button {
+      padding: 10px;
+      font-size: 18px;
+      margin: 10px;
+    }
+    .picker-container {
+      display: inline-block;
+      margin: 20px;
+    }
+  </style>
 </head>
 <body>
-    <h1>ESP32 BLE Color Picker</h1>
-    <button onclick="connectBLE()">Connect to ESP32</button>
-    <div id="colorWheel"></div>
+  <h1>ESP32 BLE Color Picker</h1>
+  <p>Device Name Filter: <strong>ESP32-BLE-NeoPixel</strong></p>
+  
+  <button onclick="connectBLE()">Connect to ESP32</button>
 
-    <script>
-        let colorPicker = new iro.ColorPicker("#colorWheel", {
-            width: 300,
-            layoutDirection: 'horizontal',
-            borderWidth: 2,
-            borderColor: "#fff"
-        });
+  <!-- Two color pickers: Top & Bottom -->
+  <div class="picker-container">
+    <h2>Top Color</h2>
+    <div id="colorWheelTop"></div>
+  </div>
+  <div class="picker-container">
+    <h2>Bottom Color</h2>
+    <div id="colorWheelBottom"></div>
+  </div>
 
-        let bleDevice, bleServer, bleService, bleCharacteristic;
-        const SERVICE_UUID = "12345678-1234-5678-1234-56789abcdef0";
-        const CHARACTERISTIC_UUID = "abcdef01-1234-5678-1234-56789abcdef0";
+  <script>
+    let bleDevice, bleServer, bleService, bleCharacteristic;
+    const SERVICE_UUID = "12345678-1234-5678-1234-56789abcdef0";
+    const CHARACTERISTIC_UUID = "abcdef01-1234-5678-1234-56789abcdef0";
 
-        async function connectBLE() {
-            try {
-                bleDevice = await navigator.bluetooth.requestDevice({
-                    acceptAllDevices: true,
-                    optionalServices: [SERVICE_UUID]
-                });
-
-                bleServer = await bleDevice.gatt.connect();
-                bleService = await bleServer.getPrimaryService(SERVICE_UUID);
-                bleCharacteristic = await bleService.getCharacteristic(CHARACTERISTIC_UUID);
-                
-                alert("Connected to ESP32!");
-            } catch (error) {
-                console.error("Bluetooth Error:", error);
-                alert("Failed to connect.");
-            }
+    // Two color pickers with only a color wheel (no brightness slider):
+    let colorPickerTop = new iro.ColorPicker("#colorWheelTop", {
+      width: 200,
+      layout: [
+        { 
+          component: iro.ui.Wheel, 
+          options: {}
         }
+      ]
+    });
 
-        colorPicker.on('color:change', function(color) {
-            if (!bleCharacteristic) {
-                alert("BLE Characteristic not found!");
-                return;
-            }
+    let colorPickerBottom = new iro.ColorPicker("#colorWheelBottom", {
+      width: 200,
+      layout: [
+        {
+          component: iro.ui.Wheel,
+          options: {}
+        }
+      ]
+    });
 
-            let rgb = new Uint8Array([color.rgb.r, color.rgb.g, color.rgb.b]);
-            console.log(`Sending RGB: ${color.rgb.r}, ${color.rgb.g}, ${color.rgb.b}`);
-            bleCharacteristic.writeValue(rgb)
-                .then(() => console.log("Data Sent!"))
-                .catch(error => console.log("Write Error:", error));
+    // Helper to send [ringIndex, R, G, B]
+    function sendColor(ringIndex, r, g, b) {
+      if (!bleCharacteristic) {
+        console.log("BLE Characteristic not found or not connected!");
+        return;
+      }
+      let data = new Uint8Array([ringIndex, r, g, b]);
+      console.log(`Sending => ring ${ringIndex}, RGB=(${r},${g},${b})`);
+      bleCharacteristic.writeValue(data)
+        .then(() => console.log("Data Sent!"))
+        .catch(error => console.error("Write Error:", error));
+    }
+
+    // Connect to the BLE device by filtering on name
+    async function connectBLE() {
+      try {
+        bleDevice = await navigator.bluetooth.requestDevice({
+          filters: [{ name: 'ESP32-BLE-NeoPixel' }],
+          optionalServices: [SERVICE_UUID]
         });
-    </script>
+
+        bleServer = await bleDevice.gatt.connect();
+        bleService = await bleServer.getPrimaryService(SERVICE_UUID);
+        bleCharacteristic = await bleService.getCharacteristic(CHARACTERISTIC_UUID);
+        
+        alert("Connected to ESP32!");
+      } catch (error) {
+        console.error("Bluetooth Error:", error);
+        alert("Failed to connect. See console for details.");
+      }
+    }
+
+    // Listen for color changes
+    colorPickerTop.on('color:change', (color) => {
+      // ringIndex = 0 => top ring
+      sendColor(0, color.rgb.r, color.rgb.g, color.rgb.b);
+    });
+
+    colorPickerBottom.on('color:change', (color) => {
+      // ringIndex = 1 => bottom ring
+      sendColor(1, color.rgb.r, color.rgb.g, color.rgb.b);
+    });
+  </script>
 </body>
 </html>
