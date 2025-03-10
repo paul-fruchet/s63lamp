@@ -48,24 +48,20 @@
     // Create two Iro.js color pickers, each showing only a color wheel
     let colorPickerTop = new iro.ColorPicker("#colorWheelTop", {
       width: 200,
+      padding: 50,
       layout: [
         { 
-          component: iro.ui.Wheel,
-          options: {
-            bounded: false
-          } 
+          component: iro.ui.Wheel
         }
       ]
     });
 
     let colorPickerBottom = new iro.ColorPicker("#colorWheelBottom", {
       width: 200,
+      padding: 50,
       layout: [
         { 
-          component: iro.ui.Wheel,
-          options: {
-            bounded: false
-          } 
+          component: iro.ui.Wheel
         }
       ]
     });
