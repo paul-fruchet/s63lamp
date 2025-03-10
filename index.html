@@ -110,7 +110,7 @@
     });
 
     // BOTTOM color picker -> ringIndex = 1
-    colorPickerBottom.on('color:change', (color) => {
+    colorPickerBottom.on('input:change', (color) => {
       let { r, g, b } = color.rgb;
       sendColor(2, r, g, b);
     });
