@@ -49,14 +49,24 @@
     let colorPickerTop = new iro.ColorPicker("#colorWheelTop", {
       width: 200,
       layout: [
-        { component: iro.ui.Wheel }
+        { 
+          component: iro.ui.Wheel,
+          options: {
+            bounded: false
+          } 
+        }
       ]
     });
 
     let colorPickerBottom = new iro.ColorPicker("#colorWheelBottom", {
       width: 200,
       layout: [
-        { component: iro.ui.Wheel }
+        { 
+          component: iro.ui.Wheel,
+          options: {
+            bounded: false
+          } 
+        }
       ]
     });
 
