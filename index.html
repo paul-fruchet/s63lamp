@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>ESP32 BLE Color Picker</title>
+  <title>Vicky's phone</title>
   <!-- Iro.js from CDN -->
   <script src="https://cdn.jsdelivr.net/npm/@jaames/iro@5"></script>
   <style>
@@ -25,12 +25,8 @@
   </style>
 </head>
 <body>
-  <h1>ESP32 BLE Color Picker</h1>
-  <p>Using Device Name: <strong>ESP32-BLE-NeoPixel</strong></p>
-  
   <button onclick="connectBLE()">Connect to S63</button>
 
-  <!-- Two color pickers: Top & Bottom -->
   <div class="picker-container">
     <h2>Top Color</h2>
     <div id="colorWheelTop"></div>
@@ -47,8 +43,8 @@
 
     // Create two Iro.js color pickers, each showing only a color wheel
     let colorPickerTop = new iro.ColorPicker("#colorWheelTop", {
-      width: 400,
-      padding: -10,
+      width: 380,
+      padding: -8,
       margin: 40,
       layout: [
         { 
@@ -58,8 +54,8 @@
     });
 
     let colorPickerBottom = new iro.ColorPicker("#colorWheelBottom", {
-      width: 400,
-      padding: 0,
+      width: 380,
+      padding: -8,
       layout: [
         { 
           component: iro.ui.Wheel
@@ -96,7 +92,7 @@
         bleService = await bleServer.getPrimaryService(SERVICE_UUID);
         bleCharacteristic = await bleService.getCharacteristic(CHARACTERISTIC_UUID);
         
-        alert("Connected to ESP32!");
+        alert("Connected to S63!");
       } catch (error) {
         console.error("Bluetooth Error:", error);
         alert("Failed to connect. See console for details.");
